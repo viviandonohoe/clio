@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "clio"
+version = "0.1.0"
+description = ""
+authors = ["vivian"]
+license = "apache"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+openai = "^1.58.1"
+streamlit = "^1.41.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
