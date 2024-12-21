@@ -1,10 +1,10 @@
-import openai 
+from openai import OpenAI
 import streamlit as st
 import base64
 from io import BytesIO
 
 with st.sidebar:
-    openai_api_key = st.text_input("OpenAI API Key", key="chatbot_api_key", type="password")
+    user_openai_api_key = st.text_input("OpenAI API Key", key="chatbot_api_key", type="password")
     "[Get an OpenAI API key](https://platform.openai.com/account/api-keys)"
     "[View the source code](https://github.com/viviandonohoe/clio.git)"
 
@@ -19,20 +19,28 @@ def encode_image(image_file):
     return base64.b64encode(img.getvalue()).decode('utf-8')
 
 # Function to handle transcription
-def transcribe_image(image_base64):
-    # Set the API key
-    openai.api_key = openai_api_key
+def transcribe_image(base64_image, openai_api_key):
+    client = OpenAI(api_key=openai_api_key)
 
-    # Create the image transcription request
-    response = openai.Image.create(
-        model="gpt-4",  # Make sure to use the correct model
-        images=[{
-            "image_data": f"data:image/jpeg;base64,{image_base64}"
-        }],
-        max_tokens=1500
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": "What is in this image?",
+                    },
+                    {
+                        "type": "image_url",
+                        "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"},
+                    },
+                ],
+            }
+        ],
     )
 
-    # Extract the transcription result
     transcription = response['data'][0]['text']
     return transcription
 
@@ -42,10 +50,13 @@ if uploaded_file is not None:
 
     # Transcribe Button
     if st.button("Transcribe Image"):
-        st.spinner("Transcribing the document...")
-        try:
-            transcript = transcribe_image(image_base64)
-            st.write("Transcription:")
-            st.text_area("Transcribed Text", transcript, height=300)
-        except Exception as e:
-            st.error(f"Error: {e}")
+        if user_openai_api_key == "":
+            st.error("Please enter your OpenAI API key")
+        else:
+            st.spinner("Transcribing the document...")
+            try:
+                transcript = transcribe_image(image_base64, user_openai_api_key)
+                st.write("Transcription:")
+                st.text_area("Transcribed Text", transcript, height=300)
+            except Exception as e:
+                st.error(f"Error: {e}")
