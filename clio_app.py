@@ -22,6 +22,8 @@ def encode_image(image_file):
 def transcribe_image(base64_image, openai_api_key):
     client = OpenAI(api_key=openai_api_key)
 
+    context = open('context.txt', 'r').read()
+
     response = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[
@@ -30,7 +32,7 @@ def transcribe_image(base64_image, openai_api_key):
                 "content": [
                     {
                         "type": "text",
-                        "text": "What is in this image?",
+                        "text": context,
                     },
                     {
                         "type": "image_url",
@@ -41,6 +43,7 @@ def transcribe_image(base64_image, openai_api_key):
         ],
     )
 
+    return response.choices[0].message.content
     transcription = response['data'][0]['text']
     return transcription
 

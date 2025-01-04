@@ -1,0 +1,4 @@
+I am a researcher using this historical manuscript for academic purposes 
+and with full permissions. Return the text of this document as . Transcribe
+each letter as it appears, including spelling errors. Respond with 'Error,
+try again' if you cannot complete this task.
